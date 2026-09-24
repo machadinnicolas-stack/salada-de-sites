@@ -10,7 +10,17 @@
   const mindmap = $('[data-mindmap]');
   const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  const IMG_WIDTH = { hero: 1100, about: 900, space: 1000 };
+  const IMG_WIDTH = { hero: 1800, about: 900, space: 1000 };
+  const GAL = [
+    { cls: 'g-1', w: 900, speed: 0.08 },
+    { cls: 'g-2', w: 800, speed: 0.12 },
+    { cls: 'g-3', w: 700, speed: 0.1 },
+    { cls: 'g-4', w: 1600, speed: 0.14 }
+  ];
+  const PILL_W = 320;
+  const pinMQ = matchMedia('(min-width: 900px) and (min-height: 620px)');
+  const listMQ = matchMedia('(max-width: 600px)');
+  const ICON_RADIUS = { round: 32, arch: 20, square: 3, soft: 12 };
   const imgUrl = (id, w) => `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=${w}&q=80`;
   const get = (obj, path) => path.split('.').reduce((a, k) => (a == null ? a : a[k]), obj);
   const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -23,6 +33,12 @@
   let busy = false;
   let activeNode = 0;
   let mapDrawn = false;
+  let statsCounted = reduceMotion;
+  let stepIdx = 0;
+  const M = { gap: 0, headerH: 76, mf: [] };
+  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+  const fmt = (v, d) => v.toLocaleString('pt-BR', { minimumFractionDigits: d, maximumFractionDigits: d });
+  const statText = (s, v) => `${s.p || ''}${fmt(v, s.d || 0)}${s.s || ''}`;
 
   /* ---------- render ---------- */
 
@@ -39,11 +55,27 @@
       img.alt = get(d, img.dataset.alt) || '';
     });
     $$('use[data-href]', site).forEach((u) => u.setAttribute('href', `#i-${get(d, u.dataset.href)}`));
+    $$('[data-split]', site).forEach((el) => {
+      el.innerHTML = String(get(d, el.dataset.split)).split(' ')
+        .map((w, i) => `<span class="w"><span style="--wi:${i}">${esc(w)}</span></span>`).join(' ');
+    });
+    site.style.setProperty('--hero-pos', d.heroPos);
+    site.dataset.hero = d.heroFit || 'cover';
+    site.style.setProperty('--hero-bg', d.heroBg || 'var(--surface-2)');
 
-    list('trust', d.trust.map(([k, v]) => `<li><span class="trust-k">${esc(k)}</span><span class="trust-v">${esc(v)}</span></li>`));
+    list('stats', d.stats.map((s) => `<li><span class="stat-n" data-n="${s.n}" data-d="${s.d || 0}" data-p="${esc(s.p || '')}" data-s="${esc(s.s || '')}">${esc(statText(s, statsCounted ? s.n : 0))}</span><span class="stat-l">${esc(s.l)}</span></li>`));
     list('aboutText', d.about.text.map((p) => `<p>${esc(p)}</p>`));
     list('creds', d.about.creds.map((c) => `<li>${icon('check')}${esc(c)}</li>`));
-    list('steps', d.steps.items.map((s, i) => `<li class="step"><span class="step-n">${pad(i + 1)}</span><h3 class="display">${esc(s.t)}</h3><p>${esc(s.d)}</p></li>`));
+    const pillIds = d.gallery.imgs.map(([id]) => id);
+    list('mfA', marqueeRow(d.manifesto.a, [pillIds[1], pillIds[2]]));
+    list('mfB', marqueeRow(d.manifesto.b, [pillIds[0], pillIds[3]]));
+    const total = d.steps.items.length;
+    list('steps', d.steps.items.map((s, i) => `<li class="steps-item${stepClass(i)}"><span class="steps-n">${pad(i + 1)}</span><strong>${esc(s.t)}</strong></li>`));
+    list('stepCards', d.steps.items.map((s, i) => `<div class="step-card${stepClass(i)}"><span class="step-big" aria-hidden="true">${pad(i + 1)}</span><span class="step-count">Etapa ${i + 1} de ${total}</span><h3 class="display">${esc(s.t)}</h3><p>${esc(s.d)}</p></div>`));
+    list('gallery', [
+      ...d.gallery.imgs.map(([id, alt], i) => `<figure class="g-tile ${GAL[i].cls}" style="--k:${i}"><div class="g-inner"><div class="g-img" data-speed="${GAL[i].speed}"><img src="${imgUrl(id, GAL[i].w)}" alt="${esc(alt)}" loading="lazy"></div></div></figure>`),
+      `<div class="g-tile g-note" style="--k:4"><div class="g-inner"><p class="display">${esc(d.gallery.note)}</p><span class="g-addr">${icon('pin')}${esc(d.contact.district)}</span></div></div>`
+    ]);
     list('proof', d.proof.items.map((p) => (d.proof.type === 'testimonials'
       ? `<article class="proof-card"><p class="proof-k">${esc(p.k)}</p><blockquote class="proof-q">${esc(p.q)}</blockquote><footer class="proof-meta"><span class="avatar" aria-hidden="true">${esc(p.n[0])}</span><span><strong>${esc(p.n)}</strong><small>${esc(p.m)}</small></span></footer></article>`
       : `<article class="proof-card"><p class="proof-k">${esc(p.k)}</p><h3 class="proof-q">${esc(p.q)}</h3><a class="link-arrow js-demo-cta" href="#contato" data-toast="Demonstração: no site real, aqui abre o artigo completo.">Ler artigo ${icon('arrow')}</a></article>`)));
@@ -53,7 +85,25 @@
 
     document.title = `${d.brand.name} · ${d.brand.role}`;
     $('meta[name="theme-color"]').content = d.theme.bg;
+    setFavicon(d);
     $$('.dock-btn').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.niche === key)));
+    measure();
+    runFx();
+  }
+
+  // favicon com o monograma do profissional, no formato de cada nicho
+  function setFavicon(d) {
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="${ICON_RADIUS[d.shape]}" fill="${d.theme.color}"/><text x="32" y="41" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="700" fill="#FFFFFF">${esc(d.brand.mono)}</text></svg>`;
+    $('link[rel="icon"]').href = `data:image/svg+xml,${encodeURIComponent(svg)}`;
+  }
+
+  function marqueeRow(parts, pills) {
+    const unit = parts.map((t, i) => `<span class="mf-text">${esc(t)}</span><span class="mf-pill"><img src="${imgUrl(pills[i % pills.length], PILL_W)}" alt="" loading="lazy"></span>`).join('');
+    return [unit, unit, unit, unit];
+  }
+
+  function stepClass(i) {
+    return `${i === stepIdx ? ' is-active' : ''}${i < stepIdx ? ' is-past is-done' : ''}`;
   }
 
   function list(name, items) {
@@ -70,29 +120,24 @@
   }
 
   function layoutMap() {
+    const nodes = $$('.mm-node', mindmap);
+    const svg = $('.mm-svg', mindmap);
+    // no celular o CSS mostra os ramos como lista, sem posições nem linhas
+    if (listMQ.matches) {
+      nodes.forEach((n) => { n.style.left = ''; n.style.top = ''; });
+      svg.innerHTML = '';
+      return;
+    }
     const w = mindmap.clientWidth;
     const h = mindmap.clientHeight;
     if (!w || !h) return;
-    const nodes = $$('.mm-node', mindmap);
-    const compact = w < 520;
-    let cx, cy, pts;
-
-    if (compact) {
-      cx = w / 2;
-      cy = 64;
-      const cols = [w * 0.26, w * 0.74];
-      const top = 180;
-      const gap = (h - top - 44) / 2;
-      pts = nodes.map((_, i) => [cols[i % 2], top + Math.floor(i / 2) * gap]);
-    } else {
-      cx = w / 2;
-      cy = h / 2;
-      const nw = Math.max(...nodes.map((n) => n.offsetWidth));
-      const nh = Math.max(...nodes.map((n) => n.offsetHeight));
-      const ox = w / 2 - nw / 2 - 6;
-      const oy = h / 2 - nh / 2 - 10;
-      pts = [[-ox, -oy * 0.5], [0, -oy], [ox, -oy * 0.5], [ox, oy * 0.5], [0, oy], [-ox, oy * 0.5]].map(([x, y]) => [cx + x, cy + y]);
-    }
+    const cx = w / 2;
+    const cy = h / 2;
+    const nw = Math.max(...nodes.map((n) => n.offsetWidth));
+    const nh = Math.max(...nodes.map((n) => n.offsetHeight));
+    const ox = w / 2 - nw / 2 - 6;
+    const oy = h / 2 - nh / 2 - 10;
+    const pts = [[-ox, -oy * 0.5], [0, -oy], [ox, -oy * 0.5], [ox, oy * 0.5], [0, oy], [-ox, oy * 0.5]].map(([x, y]) => [cx + x, cy + y]);
 
     const center = $('.mm-center', mindmap);
     center.style.left = `${cx}px`;
@@ -100,15 +145,10 @@
     nodes.forEach((n, i) => { n.style.left = `${pts[i][0]}px`; n.style.top = `${pts[i][1]}px`; });
 
     const curve = (x2, y2) => {
-      if (compact) {
-        const my = (cy + y2) / 2;
-        return `M${cx} ${cy} C ${cx} ${my}, ${x2} ${my}, ${x2} ${y2}`;
-      }
       const mx = (cx + x2) / 2;
       return `M${cx} ${cy} C ${mx} ${cy}, ${mx} ${y2}, ${x2} ${y2}`;
     };
 
-    const svg = $('.mm-svg', mindmap);
     svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
     svg.innerHTML = pts.map(([x, y], i) => {
       const p = curve(x, y);
@@ -152,6 +192,7 @@
     lastWidth = mindmap.clientWidth;
     layoutMap();
   }).observe(mindmap);
+  listMQ.addEventListener('change', layoutMap);
 
   function drawMap() {
     if (mapDrawn) return;
@@ -162,27 +203,146 @@
 
   /* ---------- scroll reveal / header ---------- */
 
+  function onReveal(el) {
+    el.classList.add('is-visible');
+    if (el === mindmap) drawMap();
+    if (el.matches('.stats')) countUp();
+  }
   const io = new IntersectionObserver((entries) => {
     entries.forEach((e) => {
       if (!e.isIntersecting) return;
-      e.target.classList.add('is-visible');
       io.unobserve(e.target);
-      if (e.target === mindmap) drawMap();
+      onReveal(e.target);
     });
   }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
-  $$('.reveal', site).forEach((el) => {
-    if (reduceMotion) {
-      el.classList.add('is-visible');
-      if (el === mindmap) drawMap();
-    } else {
-      io.observe(el);
-    }
-  });
+  $$('.reveal, .reveal-group', site).forEach((el) => (reduceMotion ? onReveal(el) : io.observe(el)));
+
+  function countUp() {
+    if (statsCounted) return;
+    statsCounted = true;
+    const els = $$('.stat-n', site);
+    const t0 = performance.now();
+    (function step(now) {
+      const t = Math.min(1, (now - t0) / 1800);
+      const e = 1 - Math.pow(1 - t, 4);
+      els.forEach((el) => { el.textContent = `${el.dataset.p}${fmt(+el.dataset.n * e, +el.dataset.d)}${el.dataset.s}`; });
+      if (t < 1) requestAnimationFrame(step);
+    })(t0);
+  }
 
   const header = $('.site-header');
-  const onScroll = () => header.classList.toggle('is-scrolled', scrollY > 8);
-  addEventListener('scroll', onScroll, { passive: true });
-  onScroll();
+
+  /* ---------- efeitos de rolagem ---------- */
+
+  function measure() {
+    const head = $('.hero-head', site);
+    M.gap = head.getBoundingClientRect().left + parseFloat(getComputedStyle(head).paddingLeft);
+    M.headerH = header.offsetHeight;
+    M.mf = $$('.mf-row', site).map((row) => ({
+      row,
+      track: row.firstElementChild,
+      dir: +row.dataset.dir,
+      range: Math.max(0, row.firstElementChild.scrollWidth - row.clientWidth)
+    }));
+  }
+
+  function heroFx(vh) {
+    const win = $('[data-hero-window]', site);
+    const r = win.getBoundingClientRect();
+    if (r.bottom < -40 || r.top > vh + 40) return;
+    const p = clamp(scrollY / Math.max(1, r.top + scrollY - M.headerH - 24), 0, 1);
+    const q = 1 - p;
+    const gap = M.gap * q;
+    const w = r.width - gap * 2;
+    let round;
+    switch (N[current].shape) {
+      case 'arch': {
+        const rx = (w / 2) * q;
+        const ry = Math.min(r.height * 0.62, w / 2) * q;
+        const rb = 28 * q;
+        round = `${rx.toFixed(1)}px ${rx.toFixed(1)}px ${rb}px ${rb}px / ${ry.toFixed(1)}px ${ry.toFixed(1)}px ${rb}px ${rb}px`;
+        break;
+      }
+      case 'square': round = `${(2 * q).toFixed(1)}px`; break;
+      case 'soft': round = `${(14 * q).toFixed(1)}px`; break;
+      default: round = `${(36 * q).toFixed(1)}px`;
+    }
+    win.style.clipPath = `inset(0 ${gap.toFixed(1)}px round ${round})`;
+    if (reduceMotion) return;
+    const lim = r.height * 0.07;
+    const ty = clamp(-(r.top - M.headerH) * 0.12, -lim, lim);
+    $('.hero-img', site).style.transform = `translate3d(0, ${ty.toFixed(1)}px, 0) scale(${(1.14 - 0.14 * p).toFixed(4)})`;
+  }
+
+  function marqueeFx(vh) {
+    M.mf.forEach(({ row, track, dir, range }) => {
+      const r = row.getBoundingClientRect();
+      if (r.bottom < 0 || r.top > vh) return;
+      const p = clamp((vh - r.top) / (vh + r.height), 0, 1);
+      const x = dir < 0 ? -range * (0.12 + 0.46 * p) : -range * (0.58 - 0.46 * p);
+      track.style.transform = `translate3d(${x.toFixed(1)}px, 0, 0)`;
+    });
+  }
+
+  function stepsFx(vh) {
+    if (!pinMQ.matches) return;
+    const track = $('[data-steps]', site);
+    const r = track.getBoundingClientRect();
+    const pinH = vh - M.headerH;
+    const p = clamp((M.headerH - r.top) / Math.max(1, r.height - pinH), 0, 1);
+    track.style.setProperty('--sp', p.toFixed(4));
+    const count = N[current].steps.items.length;
+    const idx = Math.min(count - 1, Math.floor(p * count));
+    if (idx === stepIdx) return;
+    stepIdx = idx;
+    $$('.steps-item', site).forEach((li, i) => { li.classList.toggle('is-active', i === idx); li.classList.toggle('is-done', i < idx); });
+    $$('.step-card', site).forEach((c, i) => { c.classList.toggle('is-active', i === idx); c.classList.toggle('is-past', i < idx); });
+  }
+
+  function parallaxFx(vh) {
+    $$('[data-speed]', site).forEach((el) => {
+      const box = el.parentElement.getBoundingClientRect();
+      if (box.bottom < -100 || box.top > vh + 100) return;
+      const c = box.top + box.height / 2 - vh / 2;
+      const lim = box.height * 0.1;
+      el.style.transform = `translate3d(0, ${clamp(-c * +el.dataset.speed, -lim, lim).toFixed(1)}px, 0)`;
+    });
+  }
+
+  function runFx() {
+    const vh = innerHeight;
+    header.classList.toggle('is-scrolled', scrollY > 8);
+    heroFx(vh);
+    stepsFx(vh);
+    if (reduceMotion) return;
+    marqueeFx(vh);
+    parallaxFx(vh);
+  }
+
+  let fxQueued = false;
+  const queueFx = () => {
+    if (fxQueued) return;
+    fxQueued = true;
+    requestAnimationFrame(() => { fxQueued = false; runFx(); });
+  };
+  addEventListener('scroll', queueFx, { passive: true });
+  addEventListener('resize', () => { measure(); queueFx(); });
+  document.fonts?.ready.then(() => { measure(); queueFx(); });
+
+  const galleryEl = $('[data-list="gallery"]', site);
+  galleryEl.addEventListener('pointermove', (e) => {
+    if (e.pointerType !== 'mouse' || reduceMotion) return;
+    const inner = e.target.closest('.g-inner');
+    if (!inner) return;
+    const r = inner.getBoundingClientRect();
+    const x = (e.clientX - r.left) / r.width - 0.5;
+    const y = (e.clientY - r.top) / r.height - 0.5;
+    inner.style.transform = `perspective(900px) rotateX(${(-y * 5).toFixed(2)}deg) rotateY(${(x * 6).toFixed(2)}deg)`;
+  });
+  galleryEl.addEventListener('pointerout', (e) => {
+    const inner = e.target.closest('.g-inner');
+    if (inner && !inner.contains(e.relatedTarget)) inner.style.transform = '';
+  });
 
   /* ---------- toast (CTAs de demonstração) ---------- */
 
@@ -204,10 +364,17 @@
   /* ---------- pré-carregamento ---------- */
 
   const decoded = {};
-  function preload(key) {
+  function nicheImages(key, coreOnly) {
     const d = N[key];
-    const imgs = Object.keys(IMG_WIDTH).map((slot) => {
-      const url = imgUrl(d.img[slot], IMG_WIDTH[slot]);
+    const urls = Object.keys(IMG_WIDTH).map((slot) => imgUrl(d.img[slot], IMG_WIDTH[slot]));
+    if (coreOnly) return urls;
+    return urls.concat(
+      d.gallery.imgs.map(([id], i) => imgUrl(id, GAL[i].w)),
+      d.gallery.imgs.map(([id]) => imgUrl(id, PILL_W))
+    );
+  }
+  function preload(key, coreOnly) {
+    const imgs = nicheImages(key, coreOnly).map((url) => {
       if (!decoded[url]) {
         const im = new Image();
         im.src = url;
@@ -215,17 +382,32 @@
       }
       return decoded[url];
     });
-    const fonts = document.fonts ? [document.fonts.load(d.font), document.fonts.load('500 11px "IBM Plex Mono"')] : [];
+    const fonts = document.fonts ? [document.fonts.load(N[key].font), document.fonts.load('500 11px "IBM Plex Mono"')] : [];
     return Promise.race([Promise.all([...imgs, ...fonts]), wait(2500)]);
   }
 
   /* ---------- efeito scanner ---------- */
 
+  function stickyOffsets(root) {
+    return $$('.steps-pin', root).map((el) => {
+      const stuck = el.getBoundingClientRect().top;
+      el.style.position = 'relative';
+      const offset = stuck - el.getBoundingClientRect().top;
+      el.style.position = '';
+      return offset;
+    });
+  }
+
   function snapshotSite() {
+    const offsets = stickyOffsets(site);
     const clone = site.cloneNode(true);
     clone.setAttribute('aria-hidden', 'true');
     clone.inert = true;
     $$('[id]', clone).forEach((el) => el.removeAttribute('id'));
+    $$('.steps-pin', clone).forEach((el, i) => {
+      el.style.position = 'relative';
+      el.style.top = `${offsets[i]}px`;
+    });
     const layer = document.createElement('div');
     layer.className = 'scan-layer';
     const inner = document.createElement('div');
@@ -441,7 +623,7 @@
 
   $('.intro-opts').innerHTML = ORDER.map((key) => {
     const d = N[key];
-    const sw = { dentista: ['#177E9E', '#DCEFF5', '#E8917E'], psicologo: ['#5E7351', '#EFE7DA', '#C97B5E'], advogado: ['#1F3A2A', '#F2EEE3', '#B38F2E'], contador: ['#1D3A5C', '#E0E8F1', '#C9A227'] }[key];
+    const sw = { dentista: ['#0B6A93', '#D6EAF2', '#E3928B'], psicologo: ['#5A4677', '#E6DEF0', '#D69C57'], advogado: ['#6B1E2B', '#E6E3DC', '#A8894D'], contador: ['#17664A', '#D8EADF', '#E2C443'] }[key];
     const desc = { dentista: 'Clínico, leve e fresco', psicologo: 'Acolhedor e calmo', advogado: 'Clássico e sóbrio', contador: 'Preciso e moderno' }[key];
     return `<div class="intro-opt-wrap"><div class="intro-float"><button type="button" class="intro-opt" data-niche="${key}" style="--c:${d.theme.color}">
       <span class="intro-opt-top"><span class="intro-opt-icon">${icon(d.icon)}</span>${icon('arrow', 'i i-go')}</span>
@@ -478,7 +660,10 @@
   }
   if (demoOff) dock.remove();
 
-  const warmUp = () => ORDER.forEach(preload);
+  const warmUp = () => {
+    ORDER.forEach((key) => preload(key, true));
+    setTimeout(() => ORDER.forEach((key) => preload(key)), 4000);
+  };
   if ('requestIdleCallback' in window) requestIdleCallback(warmUp, { timeout: 2500 });
   else setTimeout(warmUp, 1200);
 })();

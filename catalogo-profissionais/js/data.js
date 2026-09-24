@@ -6,11 +6,34 @@ window.NICHES = {
     area: 'Odontologia',
     icon: 'tooth',
     font: '600 48px "Bricolage Grotesque"',
-    theme: { color: '#177E9E', beam: '#1FB3DA', bg: '#F5F9FA' },
+    theme: { color: '#0B6A93', beam: '#1FA3D6', bg: '#F2F6F7' },
     brand: { name: 'Dr. Lucas Ferraz', role: 'Odontologia estética', mono: 'LF' },
     registro: 'CRO-SP 12.345',
+    shape: 'round',
+    heroPos: '50% 55%',
+    stats: [
+      { n: 14, l: 'anos de clínica' },
+      { n: 3200, s: '+', l: 'sorrisos planejados' },
+      { n: 4.9, d: 1, l: 'nota média dos pacientes' },
+      { n: 24, s: 'h', l: 'para encaixe de urgências' }
+    ],
+    manifesto: {
+      a: ['Sorrir sem pressa', 'Cuidado em cada detalhe'],
+      b: ['Tecnologia a favor do conforto', 'Resultado natural']
+    },
+    gallery: {
+      eyebrow: 'O consultório',
+      title: 'Um espaço pensado para você ficar tranquilo',
+      note: 'Escaneamento 3D, esterilização em autoclave e atendimento com hora marcada.',
+      imgs: [
+        ['1667133295352-ef4c83620e8e', 'Paciente sorrindo na cadeira durante o atendimento'],
+        ['1677026010083-78ec7f1b84ed', 'Sorriso com dentes claros e naturais'],
+        ['1667133295315-820bb6481730', 'Paciente vendo o escaneamento do sorriso na tela'],
+        ['1598256989800-fe5f95da9787', 'Sala de atendimento com cadeira odontológica']
+      ]
+    },
     img: {
-      hero: '1677026010083-78ec7f1b84ed', heroAlt: 'Sorriso com dentes claros e naturais',
+      hero: '1600170311833-c2cf5280ce49', heroAlt: 'Dentista mostrando o planejamento digital do sorriso em um tablet',
       about: '1606811841689-23dfddce3e95', aboutAlt: 'Dentista mostrando o planejamento do tratamento em uma tela para a paciente',
       space: '1629909613654-28e377c37b09', spaceAlt: 'Consultório odontológico claro e organizado'
     },
@@ -23,12 +46,6 @@ window.NICHES = {
       cta2: 'Ver tratamentos',
       chip1: { icon: 'calendar', label: 'Próximo horário', value: 'Terça, 14h30' }
     },
-    trust: [
-      ['Registro', 'CRO-SP 12.345'],
-      ['Experiência', '14 anos de clínica'],
-      ['Tecnologia', 'Escaneamento 3D'],
-      ['Convênios', 'Principais planos aceitos']
-    ],
     about: {
       title: 'Prazer, sou o Lucas.',
       text: [
@@ -41,7 +58,7 @@ window.NICHES = {
       nav: 'Tratamentos',
       eyebrow: 'Tratamentos',
       title: 'Tudo o que o seu sorriso precisa, em um só lugar',
-      hint: 'Toque em um ramo do mapa para ver os detalhes de cada tratamento.',
+      hint: 'Toque em um tratamento para ver os detalhes.',
       center: 'Seu sorriso',
       items: [
         { t: 'Clareamento', d: 'Clareamento em consultório e caseiro supervisionado, com controle de sensibilidade em cada sessão.', tags: ['Consultório', 'Caseiro', 'Moldeira'] },
@@ -95,13 +112,36 @@ window.NICHES = {
     area: 'Psicologia',
     icon: 'psi',
     font: '450 48px "Fraunces"',
-    theme: { color: '#5E7351', beam: '#D9825F', bg: '#F7F2EA' },
+    theme: { color: '#5A4677', beam: '#C98A45', bg: '#F4F1F6' },
     brand: { name: 'Ana Ribeiro', role: 'Psicóloga clínica', mono: 'AR' },
     registro: 'CRP 06/123456',
+    shape: 'arch',
+    heroPos: '50% 45%',
+    stats: [
+      { n: 11, l: 'anos de prática clínica' },
+      { n: 6000, s: '+', l: 'sessões realizadas' },
+      { n: 50, s: ' min', l: 'de duração por sessão' },
+      { n: 2, l: 'formatos: presencial e online' }
+    ],
+    manifesto: {
+      a: ['No seu tempo', 'Escuta sem julgamento'],
+      b: ['Um passo de cada vez', 'Cuidado que acolhe']
+    },
+    gallery: {
+      eyebrow: 'O consultório',
+      title: 'Um ambiente calmo, reservado e acolhedor',
+      note: 'Sala com isolamento acústico, luz natural e horários sem espera.',
+      imgs: [
+        ['1758273241078-8eec353836be', 'Psicóloga fazendo anotações durante a sessão'],
+        ['1604881991720-f91add269bed', 'Mãos entrelaçadas em um gesto de apoio'],
+        ['1758273240360-76b908e7582a', 'Jovem conversando com a terapeuta'],
+        ['1573495804664-b1c0849525af', 'Duas mulheres conversando em um sofá']
+      ]
+    },
     img: {
-      hero: '1637245048732-adf1a547835e', heroAlt: 'Sala de atendimento clara com duas poltronas e uma planta',
+      hero: '1714976694525-71eb29a7c500', heroAlt: 'Paciente sentada em um sofá durante a sessão, em uma sala clara com plantas',
       about: '1714976694810-85add1a29c96', aboutAlt: 'Psicóloga conversando durante uma sessão',
-      space: '1714976694525-71eb29a7c500', spaceAlt: 'Paciente sentada em um sofá durante a sessão'
+      space: '1714976694867-bc0e012fab70', spaceAlt: 'Sessão de terapia em uma sala com sofá e estante'
     },
     hero: {
       eyebrow: 'Psicoterapia para adultos · presencial e online',
@@ -112,12 +152,6 @@ window.NICHES = {
       cta2: 'Como posso ajudar',
       chip1: { icon: 'video', label: 'Atendimento', value: 'Presencial e online' }
     },
-    trust: [
-      ['Registro', 'CRP 06/123456'],
-      ['Abordagem', 'Terapia cognitivo-comportamental'],
-      ['Sessões', '50 minutos, semanais'],
-      ['Formato', 'Presencial e online']
-    ],
     about: {
       title: 'Prazer, sou a Ana.',
       text: [
@@ -130,7 +164,7 @@ window.NICHES = {
       nav: 'Áreas',
       eyebrow: 'Áreas de atuação',
       title: 'Como a terapia pode te ajudar',
-      hint: 'Toque em um ramo do mapa para ver cada tema com mais calma.',
+      hint: 'Toque em um tema para ver com mais calma.',
       center: 'Você',
       items: [
         { t: 'Ansiedade', d: 'Entender os gatilhos, reduzir a preocupação constante e recuperar o sono e a concentração.', tags: ['Crises', 'Insônia', 'Preocupação'] },
@@ -184,9 +218,35 @@ window.NICHES = {
     area: 'Advocacia',
     icon: 'scale',
     font: '600 48px "Cormorant Garamond"',
-    theme: { color: '#1F3A2A', beam: '#C9A227', bg: '#F7F5EF' },
+    theme: { color: '#6B1E2B', beam: '#B08D48', bg: '#F1F0EC' },
     brand: { name: 'André Nogueira', role: 'Advocacia', mono: 'AN' },
     registro: 'OAB/SP 123.456',
+    shape: 'square',
+    heroPos: '50% 0%',
+    // retrato vertical: mostra a foto inteira sobre a cor do fundo dela
+    heroFit: 'portrait',
+    heroBg: '#09101A',
+    stats: [
+      { n: 16, l: 'anos de advocacia' },
+      { n: 6, l: 'áreas de atuação' },
+      { n: 24, s: 'h', l: 'para o primeiro retorno' },
+      { n: 100, s: '%', l: 'dos processos acompanhados online' }
+    ],
+    manifesto: {
+      a: ['Clareza', 'Estratégia', 'Compromisso'],
+      b: ['Cada caso é único', 'Decisões bem informadas']
+    },
+    gallery: {
+      eyebrow: 'O escritório',
+      title: 'Atendimento reservado, perto de você',
+      note: 'Salas de reunião privativas e atendimento por videochamada para outras cidades.',
+      imgs: [
+        ['1598139384902-5a8217874645', 'Escritório com paredes de vidro e luz natural'],
+        ['1749648329134-75ed14f7dae5', 'Mãos digitando em um notebook'],
+        ['1559510881-58b92ab35929', 'Fachada do prédio comercial'],
+        ['1755551631947-b6357779d627', 'Área de trabalho do escritório']
+      ]
+    },
     img: {
       hero: '1605602517387-ec78b947335e', heroAlt: 'Retrato do advogado com as mãos entrelaçadas',
       about: '1605602517229-cdbfc3dfb70c', aboutAlt: 'Advogado sentado em retrato profissional',
@@ -201,12 +261,6 @@ window.NICHES = {
       cta2: 'Áreas de atuação',
       chip1: { icon: 'clock', label: 'Retorno', value: 'Em até 24h úteis' }
     },
-    trust: [
-      ['Inscrição', 'OAB/SP 123.456'],
-      ['Experiência', '16 anos de advocacia'],
-      ['Atendimento', 'Presencial e por vídeo'],
-      ['Atuação', 'Consultiva e contenciosa']
-    ],
     about: {
       title: 'Prazer, sou o André.',
       text: [
@@ -219,7 +273,7 @@ window.NICHES = {
       nav: 'Áreas',
       eyebrow: 'Áreas de atuação',
       title: 'Onde posso te orientar',
-      hint: 'Toque em um ramo do mapa para ver os detalhes de cada área.',
+      hint: 'Toque em uma área para ver os detalhes.',
       center: 'Seu caso',
       items: [
         { t: 'Família', d: 'Divórcio, guarda, pensão alimentícia e inventário, com prioridade para acordos.', tags: ['Divórcio', 'Guarda', 'Pensão'] },
@@ -273,9 +327,32 @@ window.NICHES = {
     area: 'Contabilidade',
     icon: 'chart',
     font: '600 48px "IBM Plex Sans"',
-    theme: { color: '#1D3A5C', beam: '#3A86C8', bg: '#F4F7FA' },
+    theme: { color: '#17664A', beam: '#1E8A5E', bg: '#F2F5F1' },
     brand: { name: 'Carla Mendes', role: 'Contabilidade consultiva', mono: 'CM' },
     registro: 'CRC-SP 1SP123456',
+    shape: 'soft',
+    heroPos: '50% 45%',
+    stats: [
+      { n: 12, l: 'anos de mercado' },
+      { n: 180, s: '+', l: 'empresas atendidas' },
+      { n: 5, p: 'dia ', l: 'entrega do relatório mensal' },
+      { n: 3, l: 'regimes: MEI, Simples e Presumido' }
+    ],
+    manifesto: {
+      a: ['Números claros', 'Decisões seguras'],
+      b: ['Imposto certo', 'Tempo para o que importa']
+    },
+    gallery: {
+      eyebrow: 'O escritório',
+      title: 'Organização que dá para ver',
+      note: 'Portal online para documentos, relatórios mensais e suporte pelo WhatsApp.',
+      imgs: [
+        ['1781268034959-8706486c22a4', 'Contadora trabalhando no computador'],
+        ['1511376868136-742c0de8c9a8', 'Notebook e calculadora sobre a mesa'],
+        ['1683884361203-69b7f969e9ff', 'Calculadora sobre uma mesa clara'],
+        ['1761914410572-02614b575847', 'Mesa com calculadora, óculos e gráficos impressos']
+      ]
+    },
     img: {
       hero: '1713947503588-8ff8196dc4a3', heroAlt: 'Contadora trabalhando no notebook em um escritório claro',
       about: '1664382951020-41874ae61a44', aboutAlt: 'Contadora de óculos analisando documentos na mesa',
@@ -290,12 +367,6 @@ window.NICHES = {
       cta2: 'Ver serviços',
       chip1: { icon: 'report', label: 'Relatório mensal', value: 'Enviado até o dia 5' }
     },
-    trust: [
-      ['Registro', 'CRC-SP 1SP123456'],
-      ['Experiência', '12 anos de mercado'],
-      ['Atendimento', '100% digital ou presencial'],
-      ['Regimes', 'MEI, Simples e Presumido']
-    ],
     about: {
       title: 'Prazer, sou a Carla.',
       text: [
@@ -308,7 +379,7 @@ window.NICHES = {
       nav: 'Serviços',
       eyebrow: 'Serviços',
       title: 'Tudo que a sua empresa precisa, em um só lugar',
-      hint: 'Toque em um ramo do mapa para ver o que está incluído em cada serviço.',
+      hint: 'Toque em um serviço para ver o que está incluído.',
       center: 'Sua empresa',
       items: [
         { t: 'Abertura de empresa', d: 'Escolha do tipo de empresa, CNPJ, alvarás e inscrições, do zero ao primeiro faturamento.', tags: ['CNPJ', 'Alvarás', 'MEI para ME'] },
